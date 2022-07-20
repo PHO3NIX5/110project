@@ -1,36 +1,78 @@
-
-
-classifier=ml5.imageClassifier('https://teachablemachine.withgoogle.com/models/oOW0lOvRk/model.json',modelReady);
-p1=""
-p2=""
+prediction = "";
 
 Webcam.set({
     width: 350,
     height: 300,
-    image_format: 'jpeg',
-    jpeg_quality: 90
- });
- Webcam.attach( '#camera' );
+    image_format: 'png',
+    png_quality: 90
+});
 
+camera = document.getElementById("camera");
 
-function take_snapshot(){
-    Webcam.snap( function(data_uri) {
-        // display results in page
-        document.getElementById('result').innerHTML = 
-         '<img id="img1" src="'+data_uri+'"/>';
-    } );
-};
-function modelReady(){
-    console.log("modelReady");
-};
-function speak(){
-    var synth=window.speechSynthesis;
-    var speakData="First prediction is"+p1+"and the second prediction is"+p2;
-    var speakOBJ=new SpeechSynthesisUtterance(speakData);
-    synth.speak(speakOBJ);
+Webcam.attach('#camera');
+
+function take_snapshot() {
+    Webcam.snap(function (data_uri){
+        document.getElementById("result").innerHTML = '<img id="image_captured" src="'+data_uri+'"/>';
+    });
 }
-function check(){
-    img1=document.getElementById("img1");
-    classifier.classify(img1,gotResult)
-    
+
+console.log("ml5 version:",ml5.version);
+
+classifier = ml5.imageClassifier('https://teachablemachine.withgoogle.com/models/ojZaSGH7I/',modelLoaded);
+
+function modelLoaded() {
+    console.log("Model Loaded Successfully!");
+}
+
+function speak() {
+    var synth = window.speechSynthesis;
+    var speak_data = "The Prediction Is "+prediction;
+    var utterThis = new SpeechSynthesisUtterance(speak_data);
+    synth.speak(utterThis);
+}
+
+function check() {
+    img = document.getElementById("image_captured");
+    classifier.classify(img, gotResults);
+}
+
+function gotResults(error, results){
+    if(error){
+        console.error(error);
+    }
+    else{
+        console.log(results);
+        document.getElementById("result_gesture_name").innerHTML = results[0].label;
+        prediction = results[0].label;
+        speak();
+        if(results[0].label == "Amazing"){
+            document.getElementById("result_emoji").innerHTML = "&#128076;";
+            
+        }
+        if(results[0].label == "Like"){
+            document.getElementById("result_emoji").innerHTML = "&#128077";
+           
+        }
+        if(results[0].label == "Victory"){
+            document.getElementById("result_emoji").innerHTML = "&#9996;";
+          
+        }
+        if(results[0].label == "Hold"){
+            document.getElementById("result_emoji").innerHTML = "&#9994;";
+           
+        }
+        if(results[0].label == "Clap"){
+            document.getElementById("result_emoji").innerHTML = "&#128079;";
+          
+        }
+        if(results[0].label == "Rock"){
+            document.getElementById("result_emoji").innerHTML = "&#129304;";
+          
+        }
+        if(results[0].label == "Bye"){
+            document.getElementById("result_emoji").innerHTML = "&#128075;";
+           
+        }
+    }
 }
